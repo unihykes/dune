@@ -1,61 +1,54 @@
 # Cursor Skill Usage: `update-cursor-settings`
 
-## Skill 目的
+## 一句话怎么用
 
-`update-cursor-settings` 用于修改 Cursor/VSCode 的用户设置（`settings.json`），把“口头偏好”快速落地为编辑器配置。
-
----
-
-## 适用场景
-
-- 调整字体、主题、tab 宽度、自动保存
-- 开关 format on save、word wrap、minimap 等
-- 修改终端与工作台偏好
+当你想“用自然语言改 Cursor 设置”时，直接说：  
+**“请用 update-cursor-settings 把 XXX 改成 YYY。”**
 
 ---
 
-## 设置文件位置（Windows）
+## 推荐你这样提需求
 
-- 用户设置：`%APPDATA%/Cursor/User/settings.json`
-- 作用范围：全局生效（所有项目）
+尽量包含：
 
-对比：
-
-- 工作区设置：`.vscode/settings.json`（仅当前项目）
-
----
-
-## 标准操作流程
-
-1. 先读取现有设置
-2. 只改用户要求的键值
-3. 保留其它已有配置
-4. 写回并保证 JSON 语法有效
-5. 告知是否需要重载窗口
+- 要改的设置项（或明确意图）
+- 目标值（如 `16`、`true`、某主题名）
+- 作用范围（全局用户设置或当前工作区）
 
 ---
 
-## 常见“需求 -> 设置项”映射
+## 常见指令模板
 
-- 调大字体 -> `editor.fontSize`
-- 自动保存 -> `files.autoSave`
-- 保存即格式化 -> `editor.formatOnSave`
-- 更换主题 -> `workbench.colorTheme`
-- 隐藏 minimap -> `editor.minimap.enabled`
-
----
-
-## 注意事项
-
-- `settings.json` 可能包含注释（JSONC），处理时不要破坏结构
-- 大改动建议可回退（备份或版本控制）
-- 用户设置和工作区设置要区分清楚，避免改错位置
+- `请用 update-cursor-settings 把 editor.fontSize 改为 16。`
+- `请开启 format on save（editor.formatOnSave=true）。`
+- `请把主题切到 Default Dark Modern。`
+- `仅改当前项目，不要改全局设置。`
 
 ---
 
-## 常见误区
+## 推荐使用步骤
 
-- 不读原文件直接覆盖，导致用户配置丢失
-- 把“项目级需求”误改到全局用户设置
-- 改完不提醒是否需要 reload，用户误以为未生效
+1. 先让 Cursor 读取现有设置
+2. 只改你指定的键值
+3. 保留其它配置不动
+4. 改完后让它回报变更项
+5. 需要时重载窗口验证生效
+
+---
+
+## 成功判断标准
+
+- 目标设置项值正确
+- 非目标配置未被误改
+- JSON/JSONC 结构未破坏
+- 你知道是否需要 reload 才生效
+
+---
+
+## 常见失败点
+
+- 需求模糊（只说“调舒服点”）
+- 忘记说明作用范围（全局 vs 工作区）
+- 批量改太多设置，难以定位问题
+- 改后不验证，误以为没生效
 

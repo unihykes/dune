@@ -1,70 +1,61 @@
 # Cursor Skill Usage: `create-hook`
 
-## Skill 目的
+## 一句话怎么用
 
-`create-hook` 用于在 Cursor 中创建自动化钩子（Hooks），让某些事件发生前后自动执行校验、拦截、补充上下文或后续动作。
-
----
-
-## 先理解 Hook 的价值
-
-你可以把 Hook 当成“智能守门员”或“自动流程节点”：
-
-- 在执行危险命令前二次确认
-- 在文件改动后自动格式化/检查
-- 在工具调用前后做审计和策略控制
+你想让 Cursor 在某个事件“自动检查/拦截/补充动作”时，直接说：  
+**“请用 create-hook 帮我创建一个 Hook，事件是 XXX，行为是 YYY。”**
 
 ---
 
-## 配置位置
+## 先给这 4 个关键信息
 
-- 项目级：`.cursor/hooks.json`（建议用于团队共享）
-- 用户级：`~/.cursor/hooks.json`（个人全局规则）
+发需求时尽量一次说全：
 
----
-
-## 关键配置字段
-
-- `version`: 目前常用 `1`
-- `hooks`: 事件到 hook 列表的映射
-- `command` / `type` / `timeout` / `matcher` / `failClosed`
+- **Scope**：项目级还是用户级
+- **Trigger**：挂在哪个事件（如 `beforeShellExecution`）
+- **Behavior**：允许/拦截/改写/补充上下文
+- **Safety**：失败时放行还是阻断（`failClosed`）
 
 ---
 
-## 常见事件选择
+## 常见“需求 -> 事件”速查
 
-- `beforeShellExecution`: 执行 shell 前拦截
-- `afterShellExecution`: 执行后审计输出
-- `preToolUse` / `postToolUse`: 工具调用前后治理
-- `afterFileEdit`: 编辑后自动处理
-- `beforeSubmitPrompt`: Prompt 发出前做安全检查
-
-选择原则：优先用“最窄事件”，减少误触发。
+- 拦截危险终端命令 -> `beforeShellExecution`
+- 文件改完自动格式化 -> `afterFileEdit`
+- 工具调用前做策略校验 -> `preToolUse`
+- Prompt 发出前查敏感词 -> `beforeSubmitPrompt`
 
 ---
 
-## 使用步骤（实战）
+## 推荐使用步骤（照着提）
 
-1. 明确目标（要拦截什么/自动做什么）
-2. 选事件与作用域（项目级或用户级）
-3. 写 `hooks.json`
-4. 写脚本（command hook）或 prompt hook
-5. 先不加复杂 matcher，跑通后再收紧
-6. 实际触发事件进行验证
+1. “先给我一个最小可用 Hook，不加复杂 matcher。”
+2. “跑通后再收紧 matcher，只匹配目标命令/工具。”
+3. “告诉我如何验证触发成功，以及失败时行为。”
 
 ---
 
-## 注意事项
+## 可直接复用的提问模板
 
-- `matcher` 是 JavaScript 正则，不是 grep/POSIX 正则
-- 需要阻断时考虑 `failClosed: true`
-- 脚本依赖命令必须真实可用，不能想当然
+- `请用 create-hook 做一个项目级 hook：在 beforeShellExecution 阶段拦截 curl/wget，失败时 failClosed=true。`
+- `先给最小版本，确认可触发后再加 matcher。`
+- `请把 hooks.json 和脚本都创建好，并告诉我如何手动验证。`
 
 ---
 
-## 常见误区
+## 成功判断标准
 
-- 一开始就写复杂 matcher，结果 hook 不触发
-- 输出字段与事件不匹配（例如返回不支持的字段）
-- 把用户级路径写成项目级相对路径，导致找不到脚本
+- 触发了正确事件（不是“看起来写了”）
+- 返回字段符合该事件支持范围
+- 错误时行为符合预期（放行或阻断）
+- 规则只影响目标场景，不误伤日常操作
+
+---
+
+## 常见失败点
+
+- 一上来就写复杂 matcher，导致不触发
+- 事件和目标不匹配（比如应该 before 却配到 after）
+- 脚本依赖缺失，实际运行失败
+- 相对路径写错，Cursor 找不到 hook 脚本
 
